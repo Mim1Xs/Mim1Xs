@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4">Редактировать трек</h1>
+
+    <form method="POST" enctype="multipart/form-data" class="bg-dark p-4 rounded">
+        <div class="mb-3">
+            <label for="title" class="form-label">Название</label>
+            <input type="text" class="form-control" id="title" name="title" value="{{ track.title }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="artist" class="form-label">Исполнитель</label>
+            <input type="text" class="form-control" id="artist" name="artist" value="{{ track.artist }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="cover_url" class="form-label">Ссылка на обложку</label>
+            <input type="url" class="form-control" id="cover_url" name="cover_url" value="{{ track.cover_url or '' }}">
+        </div>
+        <div class="mb-3">
+            <label>Текущий файл: {{ track.audio_file }}</label><br>
+            <label for="audio_file" class="form-label">Заменить файл (необязательно)</label>
+            <input type="file" class="form-control" id="audio_file" name="audio_file" accept=".mp3,audio/mpeg">
+        </div>
+        <div class="mb-3">
+            <label for="description" class="form-label">Описание</label>
+            <textarea class="form-control" id="description" name="description" rows="3">{{ track.description or '' }}</textarea>
+        </div>
+        <button type="submit" class="btn btn-success">Сохранить</button>
+        <a href="{{ url_for('add_track') }}" class="btn btn-secondary">Отмена</a>
+    </form>
+</div>
+{% endblock %}
