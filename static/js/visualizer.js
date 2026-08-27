@@ -426,6 +426,9 @@ document.addEventListener('DOMContentLoaded', function() {
         loadTrackByIndex(prevIndex, false);
     }
 
+    // ========================================================================
+    //  ФУНКЦИЯ УЛУЧШЕНИЯ ЗВУКА (ВСТАВКА: Эквалайзер + Компрессор)
+    // ========================================================================
     function initAudioContext() {
         if (!audioContext) {
             audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -433,7 +436,32 @@ document.addEventListener('DOMContentLoaded', function() {
             analyser = audioContext.createAnalyser();
             analyser.fftSize = 512;
             const source = audioContext.createMediaElementSource(audioPlayer);
-            source.connect(analyser);
+            
+            // 1. Эквалайзер (приподнимаем низы и верха)
+            const eqHigh = audioContext.createBiquadFilter();
+            eqHigh.type = 'highshelf';
+            eqHigh.frequency.value = 8000;
+            eqHigh.gain.value = 2; // +2 дБ к высоким
+
+            const eqLow = audioContext.createBiquadFilter();
+            eqLow.type = 'lowshelf';
+            eqLow.frequency.value = 200;
+            eqLow.gain.value = 3; // +3 дБ к басам
+
+            // 2. Компрессор (делает громкость ровной и плотной)
+            const compressor = audioContext.createDynamicsCompressor();
+            compressor.threshold.value = -24;
+            compressor.knee.value = 30;
+            compressor.ratio.value = 12;
+            compressor.attack.value = 0.003;
+            compressor.release.value = 0.25;
+
+            // Соединяем цепочку: источник -> эквалайзер -> компрессор -> анализатор -> динамики
+            source.connect(eqHigh);
+            eqHigh.connect(eqLow);
+            eqLow.connect(compressor);
+            compressor.connect(analyser);
+            
             analyser.connect(audioContext.destination);
             dataArray = new Uint8Array(analyser.frequencyBinCount);
             timeDataArray = new Uint8Array(analyser.fftSize);
