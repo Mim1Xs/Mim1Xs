@@ -19,7 +19,7 @@ if not os.path.exists(app.config['UPLOAD_FOLDER']):
 
 db.init_app(app)
 
-# Функция авто-добавления треков из папки
+# Автоматическое добавление треков из папки static/audio в базу при запуске
 def seed_tracks_from_files():
     audio_dir = app.config['UPLOAD_FOLDER']
     for filename in os.listdir(audio_dir):
@@ -137,6 +137,7 @@ def delete_track(id):
 
 @app.route('/audio/<filename>')
 def audio(filename):
+    # ОТПРАВЛЯЕМ ФАЙЛ ПРАВИЛЬНО, ЧТОБЫ БРАУЗЕР МОГ ЕГО ПЕРЕМАТЫВАТЬ И НЕ БЛОКИРОВАЛ АУДИО
     response = make_response(send_from_directory(app.config['UPLOAD_FOLDER'], filename))
     response.headers['Accept-Ranges'] = 'bytes'
     return response
