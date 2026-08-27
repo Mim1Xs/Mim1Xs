@@ -19,8 +19,32 @@ if not os.path.exists(app.config['UPLOAD_FOLDER']):
 
 db.init_app(app)
 
+# Функция для автоматического добавления файлов из папки audio в базу
+def seed_tracks_from_files():
+    audio_dir = app.config['UPLOAD_FOLDER']
+    if not os.path.exists(audio_dir):
+        return
+    
+    for filename in os.listdir(audio_dir):
+        if filename.lower().endswith(('.mp3', '.wav', '.ogg')):
+            # Проверяем, есть ли уже такой файл в базе
+            exists = Track.query.filter_by(audio_file=filename).first()
+            if not exists:
+                # Если нет - создаем запись. Название берем из имени файла (убираем .mp3 и заменяем _ на пробел)
+                track_title = os.path.splitext(filename)[0].replace('_', ' ')
+                new_track = Track(
+                    title=track_title,
+                    artist='Unknown Artist',  # Можно поменять на 'Mim1Ks' или оставить пустым
+                    audio_file=filename
+                )
+                db.session.add(new_track)
+    
+    db.session.commit()
+
 with app.app_context():
     db.create_all()
+    # Вызываем нашу функцию при запуске
+    seed_tracks_from_files()
 
 
 @app.route('/')
