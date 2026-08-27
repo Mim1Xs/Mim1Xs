@@ -1,7 +1,7 @@
 # app.py
 import os
 import random
-from flask import Flask, render_template, request, redirect, url_for, send_from_directory, jsonify
+from flask import Flask, render_template, request, redirect, url_for, send_from_directory, jsonify, make_response
 from werkzeug.utils import secure_filename
 from models import db, Track
 
@@ -19,7 +19,7 @@ if not os.path.exists(app.config['UPLOAD_FOLDER']):
 
 db.init_app(app)
 
-# Функция авто-добавления треков из папки (работает при каждом старте)
+# Функция авто-добавления треков из папки
 def seed_tracks_from_files():
     audio_dir = app.config['UPLOAD_FOLDER']
     for filename in os.listdir(audio_dir):
@@ -27,13 +27,11 @@ def seed_tracks_from_files():
             exists = Track.query.filter_by(audio_file=filename).first()
             if not exists:
                 name_part = os.path.splitext(filename)[0].replace('_', ' ')
-                # Пытаемся распарсить "Исполнитель - Название"
                 if ' - ' in name_part:
                     artist, title = name_part.split(' - ', 1)
                 else:
-                    artist = 'Mim1Ks' # Дефолтный автор
+                    artist = 'Mim1Ks'
                     title = name_part
-                
                 new_track = Track(title=title, artist=artist, audio_file=filename)
                 db.session.add(new_track)
     db.session.commit()
@@ -51,7 +49,6 @@ def music():
     tracks = Track.query.filter(Track.audio_file.isnot(None)).all()
     return render_template('player.html', tracks=tracks)
 
-# Твой старый маршрут для случайного трека (мы его вернули!)
 @app.route('/api/random_track')
 def random_track():
     tracks = Track.query.filter(Track.audio_file.isnot(None)).all()
@@ -79,7 +76,6 @@ def api_tracks():
         })
     return jsonify(data)
 
-# Админка: добавление + список треков с кнопками
 @app.route('/F330fbb7', methods=['GET', 'POST'])
 def add_track():
     if request.method == 'POST':
@@ -95,8 +91,7 @@ def add_track():
                 filename = secure_filename(file.filename)
                 file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
                 audio_file = filename
-        
-        # Если файл не загружали, но написали имя вручную
+
         if not audio_file:
             audio_file = request.form.get('audio_file_name')
 
@@ -110,12 +105,10 @@ def add_track():
         db.session.add(new_track)
         db.session.commit()
         return redirect(url_for('add_track'))
-        
-    # Передаем все треки в шаблон для отображения таблицы
+
     all_tracks = Track.query.all()
     return render_template('add_track.html', tracks=all_tracks)
 
-# Маршрут для редактирования
 @app.route('/edit_track/<int:id>', methods=['GET', 'POST'])
 def edit_track(id):
     track = Track.query.get_or_404(id)
@@ -124,8 +117,7 @@ def edit_track(id):
         track.artist = request.form['artist']
         track.cover_url = request.form.get('cover_url', '')
         track.description = request.form.get('description', '')
-        
-        # Если загрузили новый файл
+
         file = request.files.get('audio_file')
         if file and file.filename != '':
             filename = secure_filename(file.filename)
@@ -136,7 +128,6 @@ def edit_track(id):
         return redirect(url_for('add_track'))
     return render_template('edit_track.html', track=track)
 
-# Маршрут для удаления
 @app.route('/delete_track/<int:id>', methods=['POST'])
 def delete_track(id):
     track = Track.query.get_or_404(id)
@@ -146,7 +137,9 @@ def delete_track(id):
 
 @app.route('/audio/<filename>')
 def audio(filename):
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+    response = make_response(send_from_directory(app.config['UPLOAD_FOLDER'], filename))
+    response.headers['Accept-Ranges'] = 'bytes'
+    return response
 
 if __name__ == '__main__':
     app.run(debug=True)
