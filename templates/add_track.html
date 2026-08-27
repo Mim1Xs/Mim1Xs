@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4">Добавить трек</h1>
+
+    <form method="POST" enctype="multipart/form-data" class="bg-dark p-4 rounded">
+        <div class="mb-3">
+            <label for="title" class="form-label">Название</label>
+            <input type="text" class="form-control" id="title" name="title" required>
+        </div>
+        <div class="mb-3">
+            <label for="artist" class="form-label">Исполнитель</label>
+            <input type="text" class="form-control" id="artist" name="artist" required>
+        </div>
+
+        <!-- Поле жанр убрано -->
+
+        <div class="mb-3">
+            <label for="cover_url" class="form-label">Ссылка на обложку (URL)</label>
+            <input type="url" class="form-control" id="cover_url" name="cover_url" placeholder="https://...">
+        </div>
+
+        <div class="mb-3">
+            <label for="audio_file" class="form-label">MP3 файл</label>
+            <input type="file" class="form-control" id="audio_file" name="audio_file" accept=".mp3,audio/mpeg">
+            <div class="form-text text-light">
+                Можно загрузить свой mp3 или вставить embed-код ниже.
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="embed_code" class="form-label">Embed-код плеера (необязательно, если загружен файл)</label>
+            <textarea class="form-control" id="embed_code" name="embed_code" rows="4"></textarea>
+            <div class="form-text text-light">
+                Вставь сюда HTML-код iframe с SoundCloud, YouTube и т.п.
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="description" class="form-label">Описание (необязательно)</label>
+            <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Добавить</button>
+    </form>
+
+    <!-- Добавленный блок списка треков с кнопками удаления -->
+    <h2 class="mt-5">Список треков</h2>
+    <ul class="list-group">
+        {% for track in tracks %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <div>
+                <strong>{{ track.title }}</strong> — {{ track.artist }}
+            </div>
+            <form method="POST" action="{{ url_for('delete_track', id=track.id) }}" onsubmit="return confirm('Удалить этот трек?');">
+                <button class="btn btn-danger btn-sm">Удалить</button>
+            </form>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

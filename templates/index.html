@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="player-wrapper">
+    <canvas id="visualizer"></canvas>
+
+    <div class="player-overlay">
+        <!-- Бренд сверху слева -->
+        <div class="brand">
+            <span class="brand-name">Mim1Ks</span><span class="brand-dot">.music</span>
+        </div>
+
+        <!-- Центральный блок -->
+        <div class="center-info">
+            <h2 class="center-title" id="track-title">Загружаем...</h2>
+            <p class="center-artist" id="track-artist"></p>
+            <div class="mode-selector" id="mode-selector"></div>
+        </div>
+
+        <!-- Панель управления -->
+        <div class="player-controls">
+            <div class="progress-bar">
+                <div class="progress" id="progress">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+                <div class="time-labels">
+                    <span id="current-time">0:00</span>
+                    <span id="duration">0:00</span>
+                </div>
+            </div>
+
+            <div class="buttons-row">
+                <button id="btn-prev" class="btn-icon" disabled>⏮</button>
+                <button id="btn-play" class="btn-play">▶</button>
+                <button id="btn-next" class="btn-icon">⏭</button>
+                <button id="btn-playlist" class="btn-icon">☰</button>
+                <button id="btn-lab" class="btn-lab">
+                    <span class="lab-btn-icon">🧪</span>
+                    <span class="lab-btn-text">LAB</span>
+                </button>
+                <button id="btn-theme" class="btn-theme"></button>
+                <div class="volume">
+                    <svg class="volume-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                        <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                        <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+                    </svg>
+                    <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="1">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Секция Lab -->
+<div class="lab-section" id="lab-section">
+    <div class="lab-content">
+        <button id="btn-close-lab" class="btn-close-lab">✕</button>
+        <div class="lab-grid">
+            <div class="lab-item"><canvas id="lab-spectrum"></canvas><span>Спектр</span></div>
+            <div class="lab-item"><canvas id="lab-spectrogram"></canvas><span>Спектрограмма</span></div>
+            <div class="lab-item"><canvas id="lab-vector"></canvas><span>Векторскоп</span></div>
+            <div class="lab-item"><canvas id="lab-oscilloscope"></canvas><span>Осциллограф</span></div>
+            <div class="lab-item"><canvas id="lab-volume"></canvas><span>Громкость</span></div>
+            <div class="lab-item"><canvas id="lab-lr"></canvas><span>Уровень L/R</span></div>
+        </div>
+    </div>
+</div>
+
+<!-- Tooltip для Lab -->
+<div id="lab-tooltip" class="lab-tooltip"></div>
+
+<audio id="audio-player"></audio>
+{% endblock %}

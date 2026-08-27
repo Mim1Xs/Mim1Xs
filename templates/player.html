@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="player-wrapper">
+    <canvas id="visualizer"></canvas>
+
+    <div class="player-overlay">
+        <a href="{{ url_for('start') }}" class="brand-link" id="brand-link">
+            <div class="brand">
+                <span class="brand-name">Mim1Ks</span><span class="brand-dot">.music</span>
+            </div>
+        </a>
+
+        <div class="center-info">
+            <h2 class="center-title" id="track-title">Загружаем...</h2>
+            <p class="center-artist" id="track-artist"></p>
+        </div>
+
+        <div class="player-controls" id="player-controls">
+            <button id="btn-toggle-panel" class="btn-toggle-panel" type="button" title="Свернуть панель">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+            </button>
+
+            <div class="panel-content">
+                <div class="mode-panel" id="mode-panel">
+                    <div class="mode-panel-header" id="mode-panel-header">
+                        <span id="mode-current">Bars</span>
+                        <span class="mode-chevron">▾</span>
+                    </div>
+                    <div class="mode-selector-wrapper">
+                        <div class="mode-selector" id="mode-selector"></div>
+                    </div>
+                </div>
+
+                <div class="track-info-panel">
+                    <div class="panel-track-title" id="panel-track-title">Загружаем...</div>
+                    <div class="panel-track-artist" id="panel-track-artist"></div>
+                </div>
+
+                <canvas id="mini-eq" class="mini-eq"></canvas>
+
+                <div class="progress-bar-container">
+                    <canvas id="waveform-progress" class="waveform-progress"></canvas>
+                    <div class="progress" id="progress">
+                        <div class="progress-fill" id="progress-fill"></div>
+                    </div>
+                    <div class="time-labels">
+                        <span id="current-time">0:00</span>
+                        <span id="duration">0:00</span>
+                    </div>
+                </div>
+
+                <div class="buttons-row">
+                    <button id="btn-prev" class="btn-icon" type="button" title="Предыдущий">⏮</button>
+                    <button id="btn-play" class="btn-play" type="button" title="Играть/Пауза">▶</button>
+                    <button id="btn-next" class="btn-icon" type="button" title="Следующий">⏭</button>
+                    <button id="btn-playlist" class="btn-icon" type="button" title="Плейлист">☰</button>
+                    <button id="btn-repeat" class="btn-repeat" type="button" title="Повтор">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="17 1 21 5 17 9"></polyline>
+                            <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
+                            <polyline points="7 23 3 19 7 15"></polyline>
+                            <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
+                        </svg>
+                    </button>
+                    <button id="btn-shuffle" class="btn-shuffle" type="button" title="Перемешать">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="16 3 21 3 21 8"></polyline>
+                            <line x1="4" y1="20" x2="21" y2="3"></line>
+                            <polyline points="21 16 21 21 16 21"></polyline>
+                            <line x1="15" y1="15" x2="21" y2="21"></line>
+                            <line x1="4" y1="4" x2="9" y2="9"></line>
+                        </svg>
+                    </button>
+                    <button id="btn-lab" class="btn-lab" type="button">
+                        <svg class="lab-btn-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M2 12h4l2-7 4 14 2-7h8" />
+                        </svg>
+                        <span class="lab-btn-text">LAB</span>
+                    </button>
+                    <button id="btn-fullscreen" class="btn-icon" type="button" title="Полный экран">⛶</button>
+                    <button id="btn-theme" class="btn-theme" type="button" title="Сменить тему"></button>
+                    <div class="volume">
+                        <svg class="volume-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+                        </svg>
+                        <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="1">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Секция Lab -->
+<div class="lab-section" id="lab-section">
+    <div class="lab-content">
+        <button id="btn-close-lab" class="btn-close-lab" type="button">✕</button>
+
+        <div class="widgets-panel">
+            <span class="widgets-title">Виджеты</span>
+            <label class="widget-toggle"><input type="checkbox" data-widget="waveform" checked> Вейвформа</label>
+            <label class="widget-toggle"><input type="checkbox" data-widget="spectrum" checked> Спектр</label>
+            <label class="widget-toggle"><input type="checkbox" data-widget="oscilloscope" checked> Осциллограф</label>
+            <label class="widget-toggle"><input type="checkbox" data-widget="vector" checked> Векторскоп</label>
+            <label class="widget-toggle"><input type="checkbox" data-widget="volume" checked> Громкость</label>
+            <label class="widget-toggle"><input type="checkbox" data-widget="lr" checked> Уровень L/R</label>
+        </div>
+
+        <div class="lab-grid">
+            <div class="lab-item widget-waveform" id="widget-waveform">
+                <button class="widget-close" data-widget="waveform" type="button">✕</button>
+                <canvas id="lab-waveform"></canvas>
+                <div class="widget-data" id="data-waveform"></div>
+            </div>
+            <div class="lab-item widget-spectrum" id="widget-spectrum">
+                <button class="widget-close" data-widget="spectrum" type="button">✕</button>
+                <canvas id="lab-spectrum"></canvas>
+                <div class="widget-data" id="data-spectrum"></div>
+            </div>
+            <div class="lab-item widget-oscilloscope" id="widget-oscilloscope">
+                <button class="widget-close" data-widget="oscilloscope" type="button">✕</button>
+                <canvas id="lab-oscilloscope"></canvas>
+                <div class="widget-data" id="data-oscilloscope"></div>
+            </div>
+            <div class="lab-item widget-vector" id="widget-vector">
+                <button class="widget-close" data-widget="vector" type="button">✕</button>
+                <canvas id="lab-vector"></canvas>
+                <div class="widget-data" id="data-vector"></div>
+            </div>
+            <div class="lab-item widget-volume" id="widget-volume">
+                <button class="widget-close" data-widget="volume" type="button">✕</button>
+                <canvas id="lab-volume"></canvas>
+                <div class="widget-data" id="data-volume"></div>
+            </div>
+            <div class="lab-item widget-lr" id="widget-lr">
+                <button class="widget-close" data-widget="lr" type="button">✕</button>
+                <canvas id="lab-lr"></canvas>
+                <div class="widget-data" id="data-lr"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="lab-tooltip" class="lab-tooltip"></div>
+
+<!-- Модальное окно плейлиста -->
+<div class="modal fade" id="playlistModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content bg-dark text-light playlist-modal">
+            <div class="modal-header border-0">
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <ul id="playlist-list" class="list-group list-group-flush bg-dark"></ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<audio id="audio-player"></audio>
+{% endblock %}

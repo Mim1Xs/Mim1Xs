@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="start-container">
+    <div class="start-inner">
+        <h1 class="display-1 fw-bold neon-text" id="brand-title">
+            <span class="letter">M</span><span class="letter">i</span><span class="letter">m</span><span class="letter">1</span><span class="letter">K</span><span class="letter">s</span>
+        </h1>
+        <p class="subtitle">◦sound ◦lab</p>
+        <a href="{{ url_for('music') }}" class="btn btn-neon btn-lg mt-4">music</a>
+        <button id="btn-theme-start" class="btn-theme-start" title="Сменить тему"></button>
+    </div>
+</div>
+{% endblock %}
